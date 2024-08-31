@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judgement</title>
+    <style>
+        /* styles.css */
+        .spinner {
+        border: 5px solid #f3f3f3; /* Light grey */
+        border-top: 5px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <data id="time_period" value="{{time_period}}"></data>
+    <h2 id="loading-text">Getting your music taste from spotify</h2>
+    <div id="top_artists">
+        <h3 id="top_artists_title" style="display: none">Your top songs in the {{time_period_words}}</h3>
+        <ol id="top_artists_list">
+        </ol>
+    </div>
+    <div>
+        <h3 id="judgment_title" style="display: none">Judgement from Our AI</h3>
+        <ol id="result">
+        </ol>
+    </div>
+    <div id="spinner" class="spinner"></div>
+    <script>
+        function fetchData(url = '', data = {}) {
+            const postData = {
+                    time_period: document.getElementById('time_period').value,
+                };
+            return fetch('/ai_judgment', {
+                method: 'POST', 
+                headers: {
+                'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(postData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                return Promise.reject('Error: ' + response.statusText);
+                }
+                return response.json();
+            });
+        }
+      function startLoadingAnimation() {
+          const loadingText = document.getElementById("loading-text");
+          const loadingStates = ["Using our AI to review your music taste", "Writing Judgment", "Inserting humor"];
+          let index = 0;
+
+          const intervalId = setInterval(() => {
+              loadingText.textContent = loadingStates[index];
+              index = (index + 1) % loadingStates.length;
+          }, 2500); // Change text every 500ms
+
+          return intervalId;
+      }
+      function stopLoadingAnimation(intervalId) {
+          clearInterval(intervalId);
+          document.getElementById("loading-text").style.display = "none";
+      }
+      async function showJudgement(judgments, top_tracks)
+      {
+        document.getElementById("top_artists_title").style.display = "block";
+        for(let i = 0; i < top_tracks.length; i++) {
+            const li = document.createElement('li');
+            li.textContent = top_tracks[i];
+            document.getElementById('top_artists_list').appendChild(li);
+            await new Promise(r => setTimeout(r, 1500));
+        }
+
+        document.getElementById("judgment_title").style.display = "block";
+        for(let i = 0; i < judgments.length; i++) {
+            const li = document.createElement('li');
+            li.textContent = judgments[i];
+            document.getElementById('result').appendChild(li);
+            if (i != judgments.length - 1) {
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+      }
+      async function showLoadingAnimation() {
+        intervalId = startLoadingAnimation();
+        response = await fetchData();
+        
+        stopLoadingAnimation(intervalId);
+        judgment = await showJudgement(response.judgment, response.toptracks);
+        document.getElementById("spinner").style.display = "none";
+      }
+      showLoadingAnimation()
+    </script>
+</body>
+</html>

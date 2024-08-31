@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>Welcome to Music Taste Review</h1>
+{% if not logged_in %}
+  <a href="{{ spotify_auth_url }}" class="button">Log in to Spotify</a>
+{% else %}
+  <h2>Logged in to Spotify</h2>
+{% endif %}
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+          {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<h2>Select a time period to review your music taste:</h2>
+<!-- Form with radio buttons for time periods and a submit button -->
+<form action="{{ url_for('show_spotify_info') }}" method="POST">
+    <label>
+        <input type="radio" name="time_period" value="short_term" required>
+        Past Week
+    </label><br>
+    <label>
+        <input type="radio" name="time_period" value="medium_term" required>
+        Past Month
+    </label><br>
+    <label>
+        <input type="radio" name="time_period" value="long_term" required>
+        Past Year
+    </label><br>
+    <button type="submit" class="button submit-button">Submit</button>
+</form>
+{% endblock body %}
