@@ -34,10 +34,11 @@ class CacheSessionHandler(CacheHandler):
 
 app = Flask(__name__)
 app.secret_key = "DEV"
+env = os.environ.get("ENV", "DEV")
 oauth_manager = SpotifyOAuth(
     client_id=SPOITFY_CLIENT_ID,
     client_secret=SPOTIFY_CLIENT_SECRET,
-    redirect_uri="http://localhost:5000",
+    redirect_uri="http://localhost:5000" if env == "DEV" else "http://localhost:8000" if env == "STAGE" else "https://spotipy-flask-example.herokuapp.com/",
     scope="user-top-read",
     cache_handler=CacheSessionHandler(session, "spotify_token"),
     show_dialog=True,

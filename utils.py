@@ -7,12 +7,6 @@ MODE="TEST"
 def get_top_artists(spotify, limit=10, time_range='long_term', print_top_artists=False):
     # Get the top tracks
     top_tracks = spotify.current_user_top_tracks(limit=limit, time_range=time_range)
-
-    # Display the top tracks
-    if print_top_artists:
-        for idx, track in enumerate(top_tracks['items']):
-            print(f"{idx + 1}. {track['name']} by {track['artists'][0]['name']}")
-
     toptracks_text = ""
     toptracks_list = []
     for idx, track in enumerate(top_tracks['items']):
@@ -57,5 +51,4 @@ def get_ai_judgment(toptracks):
     judgments = re.split(pattern, judgment.strip())
     # The first element will be empty because of the leading delimiter, so remove it
     judgments = [item for item in judgments if item]
-    print(judgments)
     return judgments
