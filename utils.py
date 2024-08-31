@@ -37,13 +37,14 @@ def get_ai_judgment(toptracks):
                     "content": [
                         {
                             "type": "text",
-                            "text": toptracks
+                            "text": toptracks if toptracks != "" else "This user doesn't have any top tracks.",
                         }
                     ]
                 }
             ]
         )
         judgment =  message.content[0].text
+
     
     pattern = r'\d+\.\s*'
 
