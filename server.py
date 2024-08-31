@@ -33,7 +33,7 @@ class CacheSessionHandler(CacheHandler):
 
 
 app = Flask(__name__)
-app.secret_key = "DEV"
+app.secret_key = os.environ.get("SECRET_KEY")
 env = os.environ.get("ENV", "DEV")
 oauth_manager = SpotifyOAuth(
     client_id=SPOITFY_CLIENT_ID,
