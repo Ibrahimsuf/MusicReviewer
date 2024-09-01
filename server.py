@@ -12,7 +12,7 @@ from flask import (
 
 from spotipy import Spotify, CacheHandler
 from spotipy.oauth2 import SpotifyOAuth
-from utils import get_top_artists, get_ai_judgment
+from utils import get_top_artists, get_ai_judgment, get_ai_reccomendations
 import json
 
 SPOITFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
@@ -73,9 +73,17 @@ def ai_judgment():
     sp = Spotify(auth_manager=oauth_manager)
     toptracks_text, toptracks_list = get_top_artists(sp, time_range=data["time_period"] if data else "long_term")
     ai_judgment = get_ai_judgment(toptracks_text)
-    return json.dumps({"judgment": ai_judgment, "toptracks": toptracks_list})
+    return json.dumps({"judgment": ai_judgment, "toptracks": toptracks_list, "toptracks_text": toptracks_text})
 
-
+@app.route("/ai_reccomendations", methods=["POST"])
+def ai_reccomendations():
+    if not oauth_manager.validate_token(oauth_manager.get_cached_token()):
+        flash("You need to log in to spotify first")
+        return redirect("/")
+    
+    data = request.json
+    ai_judgment = get_ai_reccomendations(data["toptracks"])
+    return json.dumps({"reccomendations": ai_judgment}) 
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=True, use_debugger=True)

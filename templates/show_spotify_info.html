@@ -34,9 +34,14 @@
         <ol id="result">
         </ol>
     </div>
+    <div>
+        <h3>Our AI Reccomendations</h3>
+        <ol id="reccomendations">
+        </ol>
+    </div>
     <div id="spinner" class="spinner"></div>
     <script>
-        function fetchData(url = '', data = {}) {
+        function fetchJudgment(url = '', data = {}) {
             const postData = {
                     time_period: document.getElementById('time_period').value,
                 };
@@ -50,6 +55,24 @@
             .then(response => {
                 if (!response.ok) {
                 return Promise.reject('Error: ' + response.statusText);
+                }
+                return response.json();
+            });
+        }
+        function fetchReccomendations(toptracks) {
+            const postData = {
+                    toptracks: toptracks,
+                };
+            return fetch('/ai_reccomendations', {
+                method: 'POST', 
+                headers: {
+                'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(postData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return Promise.reject('Error: ' + response.statusText);
                 }
                 return response.json();
             });
@@ -92,10 +115,19 @@
       }
       async function showLoadingAnimation() {
         intervalId = startLoadingAnimation();
-        response = await fetchData();
+        response = await fetchJudgment();
         
         stopLoadingAnimation(intervalId);
         judgment = await showJudgement(response.judgment, response.toptracks);
+        reccomendations = await fetchReccomendations(response.toptracks_text);
+        for(let i = 0; i < reccomendations.reccomendations.length; i++) {
+            const li = document.createElement('li');
+            li.textContent = reccomendations.reccomendations[i]["song"] + ": " + reccomendations.reccomendations[i]["reason"];
+            document.getElementById('reccomendations').appendChild(li);
+            if (i != reccomendations.reccomendations.length - 1) {
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
         document.getElementById("spinner").style.display = "none";
       }
       showLoadingAnimation()
